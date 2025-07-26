@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SonarQube Projects Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            z-index: 2;
+        }
+
+        .logo {
+            font-weight: bold;
+            font-size: 18px;
+            background: linear-gradient(45deg, #00d4ff, #00a8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-item {
+            color: #ccc;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 10px 16px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-item:hover {
+            color: white;
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+
+        .nav-item:hover::before {
+            left: 100%;
+        }
+
+        .nav-item.active {
+            color: white;
+            background: linear-gradient(45deg, #4c9bd6, #00a8ff);
+            box-shadow: 0 4px 15px rgba(76, 155, 214, 0.4);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 2;
+        }
+
+        .search-box {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 25px;
+            padding: 10px 20px;
+            color: white;
+            width: 300px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            background: rgba(255,255,255,0.2);
+            box-shadow: 0 0 20px rgba(76, 155, 214, 0.5);
+            transform: scale(1.02);
+        }
+
+        .search-box::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #4caf50, #8bc34a);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.6);
+        }
+
+        .main-container {
+            display: flex;
+            min-height: calc(100vh - 60px);
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .sidebar {
+            width: 320px;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+        }
+
+        .content {
+            flex: 1;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 25px;
+            background: rgba(0,0,0,0.05);
+            padding: 5px;
+            border-radius: 15px;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            flex: 1;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .tab:hover::before {
+            left: 100%;
+        }
+
+        .tab.active {
+            background: linear-gradient(45deg, #4c9bd6, #00a8ff);
+            color: white;
+            box-shadow: 0 5px 15px rgba(76, 155, 214, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .tab:not(.active) {
+            background: rgba(255,255,255,0.7);
+            color: #666;
+        }
+
+        .tab:not(.active):hover {
+            background: rgba(255,255,255,1);
+            transform: translateY(-1px);
+        }
+
+        .filters h3 {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .filter-section {
+            margin-bottom: 30px;
+            background: rgba(255,255,255,0.5);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .filter-section:hover {
+            background: rgba(255,255,255,0.8);
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .filter-section h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 13px;
+        }
+
+        .filter-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .filter-badge:hover {
+            transform: scale(1.05);
+        }
+
+        .passed { 
+            background: linear-gradient(45deg, #d4edda, #c3e6cb); 
+            color: #155724; 
+            box-shadow: 0 2px 8px rgba(21, 87, 36, 0.2);
+        }
+        .failed { 
+            background: linear-gradient(45deg, #f8d7da, #f5c6cb); 
+            color: #721c24; 
+            box-shadow: 0 2px 8px rgba(114, 28, 36, 0.2);
+        }
+
+        .reliability-item, .security-item, .review-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .reliability-item:hover, .security-item:hover, .review-item:hover {
+            transform: translateX(5px);
+            background: rgba(255,255,255,0.5);
+            margin: 0 -10px;
+            padding: 8px 10px;
+            border-radius: 8px;
+        }
+
+        .rating-circle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .rating-circle:hover {
+            transform: scale(1.2) rotate(360deg);
+        }
+
+        .rating-a { background: linear-gradient(45deg, #00a86b, #28a745); }
+        .rating-b { background: linear-gradient(45deg, #80cc28, #6c757d); }
+        .rating-c { background: linear-gradient(45deg, #ed7d20, #fd7e14); }
+        .rating-d { background: linear-gradient(45deg, #d18582, #dc3545); }
+        .rating-e { background: linear-gradient(45deg, #d4333f, #dc3545); }
+
+        .count-bar {
+            height: 8px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 10px;
+            margin-left: 8px;
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .count-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4c9bd6, #00a8ff);
+            border-radius: 10px;
+            transition: width 0.8s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .count-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: progressShimmer 2s infinite;
+        }
+
+        @keyframes progressShimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            gap: 20px;
+            padding: 20px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .perspective-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .dropdown {
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 10px;
+            padding: 10px 15px;
+            background: rgba(255,255,255,0.9);
+            min-width: 140px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .dropdown:hover, .dropdown:focus {
+            outline: none;
+            border-color: #4c9bd6;
+            box-shadow: 0 0 10px rgba(76, 155, 214, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .project-search {
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 25px;
+            padding: 10px 20px;
+            width: 280px;
+            font-size: 13px;
+            background: rgba(255,255,255,0.9);
+            transition: all 0.3s ease;
+        }
+
+        .project-search:focus {
+            outline: none;
+            border-color: #4c9bd6;
+            box-shadow: 0 0 15px rgba(76, 155, 214, 0.4);
+            transform: scale(1.02);
+        }
+
+        .projects-count {
+            color: #666;
+            font-size: 14px;
+            font-weight: 600;
+            background: linear-gradient(45deg, #4c9bd6, #00a8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .home-icon {
+            color: #f39c12;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .home-icon:hover {
+            transform: scale(1.2) rotate(10deg);
+            filter: drop-shadow(0 0 10px #f39c12);
+        }
+
+        .project-list {
+            background: rgba(255,255,255,0.8);
+            border-radius: 20px;
+            border: 1px solid rgba(0,0,0,0.05);
+            overflow: hidden;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+        }
+
+        .project-item {
+            padding: 25px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(76, 155, 214, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .project-item:hover {
+            background: rgba(255,255,255,0.9);
+            transform: translateX(10px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .project-item:hover::before {
+            left: 100%;
+        }
+
+        .project-item:last-child {
+            border-bottom: none;
+        }
+
+        .project-info {
+            flex: 1;
+        }
+
+        .project-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: #4c9bd6;
+            text-decoration: none;
+            margin-bottom: 8px;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .project-name:hover {
+            color: #00a8ff;
+            transform: translateX(5px);
+            text-shadow: 0 0 10px rgba(76, 155, 214, 0.3);
+        }
+
+        .project-meta {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .project-status {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .project-status:hover {
+            transform: scale(1.05);
+        }
+
+        .metrics {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .metric {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            min-width: 80px;
+            padding: 15px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .metric:hover {
+            background: rgba(255,255,255,0.9);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .metric-value {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .metric-number {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(45deg, #333, #666);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .coverage-circle, .duplication-circle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 3px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .coverage-circle:hover, .duplication-circle:hover {
+            transform: scale(1.2) rotate(180deg);
+        }
+
+        .coverage-red { 
+            border-color: #d4333f; 
+            color: #d4333f; 
+            box-shadow: 0 0 10px rgba(212, 51, 63, 0.3);
+        }
+        .coverage-green { 
+            border-color: #00a86b; 
+            color: #00a86b; 
+            box-shadow: 0 0 10px rgba(0, 168, 107, 0.3);
+        }
+
+        .lines-badge {
+            background: linear-gradient(45deg, #e8f4f8, #d1ecf1);
+            color: #4c9bd6;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(76, 155, 214, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .lines-badge:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(76, 155, 214, 0.4);
+        }
+
+        .star-icon {
+            color: #ddd;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+
+        .star-icon:hover {
+            color: #f39c12;
+            transform: scale(1.3) rotate(20deg);
+            filter: drop-shadow(0 0 10px #f39c12);
+        }
+
+        .star-icon.favorited {
+            color: #f39c12;
+            animation: starPulse 1s ease;
+        }
+
+        @keyframes starPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
+        /* Floating particles animation */
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            animation: float 8s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-particles" id="particles"></div>
+
+    <div class="header">
+        <div class="header-left">
+            <div class="logo">sonarqube</div>
+            <a href="#" class="nav-item active">Projects</a>
+            <a href="#" class="nav-item">Issues</a>
+            <a href="#" class="nav-item">Rules</a>
+            <a href="#" class="nav-item">Quality Profiles</a>
+            <a href="#" class="nav-item">Quality Gates</a>
+            <a href="#" class="nav-item">Administration</a>
+        </div>
+        <div class="header-right">
+            <div style="cursor: pointer; font-size: 18px;">❓</div>
+            <input type="text" class="search-box" placeholder="Search for projects and files...">
+            <div style="cursor: pointer; font-size: 18px;">➕</div>
+            <div class="user-avatar">A</div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="tabs">
+                <div class="tab active">My Favorites</div>
+                <div class="tab">All</div>
+            </div>
+
+            <div class="filters">
+                <h3>🎯 Filters</h3>
+
+                <div class="filter-section">
+                    <h4>🚪 Quality Gate</h4>
+                    <div class="filter-item">
+                        <span class="filter-badge passed">Passed</span>
+                        <span style="font-weight: 600;">3</span>
+                    </div>
+                    <div class="filter-item">
+                        <span class="filter-badge failed">Failed</span>
+                        <span style="font-weight: 600;">1</span>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <h4>🐛 Reliability (Bugs)</h4>
+                    <div class="reliability-item">
+                        <div class="rating-circle rating-a">A</div>
+                        <span>1</span>
+                        <div class="count-bar"><div class="count-fill" style="width: 25%"></div></div>
+                    </div>
+                    <div class="reliability-item">
+                        <div class="rating-circle rating-b">B</div>
+                        <span>0</span>
+                        <div class="count-bar"><div class="count-fill" style="width: 0%"></div></div>
+                    </div>
+                    <div class="reliability-item">
+                        <div class="rating-circle rating-c">C</div>
+                        <span>3</span>
+                        <div class="count-bar"><div class="count-fill" style="width: 75%"></div></div>
+                    </div>
+                    <div class="reliability-item">
+                        <div class="rating-circle rating-d">D</div>
+                        <span>0</span>
+                        <div class="count-bar"><div class="count-fill" style="width: 0%"></div></div>
+                    </div>
+                    <div class="reliability-item">
+                        <div class="rating-circle rating-e">E</div>
+                        <span>0</span>
+                        <div class="count-bar"><div class="count-fill" style="width: 0%"></div></div>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <h4>🔒 Security (Vulnerabilities)</h4>
+                    <div class="security-item">
+                        <div class="rating-circle rating-a">A</div>
+                        <span>4</span>
+                        <div class="count-bar"><div class="count-fill" style="width: 100%"></div></div>
+                    </div>
+                    <div class="security-item">
+                        <div class="rating-circle rating-b">B</div>
+                        <span>0</span>
+                        <div class="count-bar"><div class="count-fill" style="width: 0%"></div></div>
+                    </div>
+                    <div class="security-item">
+                        <div class="rating-circle rating-c">C</div>
+                        <span>0</span>
+                        <div class="count-bar"><div class="count-fill" style="width: 0%"></div></div>
+                    </div>
+                    <div class="security-item">
+                        <div class="rating-circle rating-d">D</div>
+                        <span>0</span>
+                        <div class="count-bar"><div class="count-fill" style="width: 0%"></div></div>
+                    </div>
+                    <div class="security-item">
+                        <div class="rating-circle rating-e">E</div>
+                        <span>0</span>
+                        <div class="count-bar"><div class="count-fill" style="width: 0%"></div></div>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <h4>👁 Security Review (Security Hotspots)</h4>
+                    <div class="review-item">
+                        <div class="rating-circle rating-a">A</div>
+                        <span>≥ 80%</span>
+                        <span style="font-weight: 600;">1</span>
+                    </div>
+                    <div class="review-item">
+                        <div class="rating-circle rating-b">B</div>
+                        <span>70% - 80%</span>
+                        <span style="font-weight: 600;">0</span>
+                    </div>
+                    <div class="review-item">
+                        <div class="rating-circle rating-c">C</div>
+                        <span>50% - 70%</span>
+                        <span style="font-weight: 600;">0</span>
+                    </div>
+                    <div class="review-item">
+                        <div class="rating-circle rating-d">D</div>
+                        <span>30% - 50%</span>
+                        <span style="font-weight: 600;">0</span>
+                    </div>
+                    <div class="review-item">
+                        <div class="rating-circle rating-e">E</div>
+                        <span>< 30%</span>
+                        <span style="font-weight: 600;">3</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="content-header">
+                <div class="perspective-controls">
+                    <label>📊 Perspective:</label>
+                    <select class="dropdown">
+                        <option>Overall Status</option>
+                    </select>
+                    <label>🔄 Sort by:</label>
+                    <select class="dropdown">
+                        <option>Name</option>
+                    </select>
+                </div>
+                <input type="text" class="project-search" placeholder="🔍 Search by project name or key">
+                <div class="projects-count">4 projects</div>
+                <div class="home-icon">🏠</div>
+            </div>
+
+            <div class="project-list">
+                <div class="project-item">
+                    <div class="star-icon">☆</div>
+                    <div class="project-info">
+                        <a href="#" class="project-name">"Helloworld"</a>
+                        <div class="project-meta">
+                            <span class="project-status passed">Passed</span>
+                        </div>
+                        <div class="project-meta">📅 Last analysis: May 20, 2020, 1:27 PM</div>
+                    </div>
+                    <div class="metrics">
+                        <div class="metric">
+                            <div class="metric-value">
+                                <span class="metric-number">0</span>
+                                <div class="rating-circle rating-a">A</div>
+                            </div>
+                            <div class="metric-label">🐛 Bugs</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">
+                                <span class="metric-number">0</span>
+                                <div class="rating-circle rating-a">A</div>
+                            </div>
+                            <div class="metric-label">🔒 Vulnerabilities</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">
+                                <span class="metric-number">–</span>
+                                <div class="rating-circle rating-a">A</div>
+                            </div>
+                            <div class="metric-label">👁 Hotspots Reviewed</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">
+                                <span class="metric-number">5</span>
+                                <div class="rating-circle rating-c">C</div>
+                            </div>
+                            <div class="metric-label">💨 Code Smells</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">
+                                <div class="coverage-circle coverage-red">○</div>
+                                <span class="metric-number">0.0%</span>
+                            </div>
+                            <div class="metric-label">📊 Coverage</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">
+                                <div class="duplication-circle coverage-green">○</div>
+                                <span class="metric-number">0.0%</span>
+                            </div>
+                            <div class="metric-label">📋 Duplications</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">
+                                <span class="lines-badge">9</span>
+                                <span style="font-size: 11px; color: #666;">XS</span>
+                            </div>
+                            <div class="metric-label">☕ Java</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-item">
+                    <div class="star-icon">☆</div>
+                    <div class="project-info">
+                        <a href="#" class="project-name">"SpringAlien"</a>
+                        <div class="project-meta">
+                            <span class="project-status failed">Failed</span>
+                        </div>
+                        <div class="project-meta">📅 Last analysis: May 22, 2020, 8:56 AM</div>
+                    </div>
+                    <div class="metrics">
+                        <div class="metric">
+                            <div class="metric-value">
+                                <span class="metric-number">2</span>
+                                <div class="rating-circle rating-c">C</div>
+                            </div>
+                            <div class="metric-label">🐛 Bugs</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">
+                                <span class="metric-number">0</span>
+                                <div class="rating-circle rating-a">A</div>
+                            </div>
+                            <div class="metric-label">🔒 Vulnerabilities</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">
+                                <span class="metric-number">0.0%</span>
+                                <div class="rating-circle rating-e">E</div>
+                            </div>
+                            <div class="metric-label">👁 Hotspots Reviewed</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">
+                                <span class="metric-number">11</span>
+                                <div class="rating-circle rating-a">A</div>
+                            </div>
+                            <div class="metric-label">💨 Code Smells</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">
+                                <div class="coverage-circle coverage-red">○</div>
+                                <span class="metric-number">0.0%</span>
+                            </div>
+                            <div class="metric-label">📊 Coverage</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">
+                                <div class="duplication-circle coverage-green">○</div>
+                                <span class="metric-number">0.0%</span>
+                            </div>
+                            <div class="metric-label">📋 Duplications</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">
+                                <span class="lines-badge">146</span>
+                                <span style="font-size: 11px; color: #666;">XS</span>
+                            </div>
+                            <div class="metric-label">☕ Java, JSP</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-item">
+                    <div class="star-icon">☆</div>
+                    <div class="project-info">
+                        <a href="#" class="project-name">"SpringAlienSonar"</a>
+                        <div class="project-meta">
+                            <span class="project-status passed">Passed</span>
+                        </div>
+                        <div class="project-meta">📅 Last analysis: July 28, 2020, 10:16 AM</div>
+                    </div>
+                    <div class="metrics">
+                        <div class="metric">
+                            <div class="metric-value">
+                                <span class="metric-number">2</span>
+                                <div class="rating-circle rating-c">C</div>
+                            </div>
+                            <div class="metric-label">🐛 Bugs</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">
+                                <span class="metric-number">0</span>
+                                <div class="rating-circle rating-a">A</div>
+                            </div>
+                            <div class="metric-label">🔒 Vulnerabilities</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">
+                                <span class="metric-number">0.0%</span>
+                                <div class="rating-circle rating-e">E</div>
+                            </div>
+                            <div class="metric-label">👁 Hotspots Reviewed</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">
+                                <span class="metric-number">9</span>
+                                <div class="rating-circle rating-a">A</div>
+                            </div>
+                            <div class="metric-label">💨 Code Smells</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">
+                                <div class="coverage-circle coverage-red">○</div>
+                                <span class="metric-number">0.0%</span>
+                            </div>
+                            <div class="metric-label">📊 Coverage</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">
+                                <div class="duplication-circle coverage-green">○</div>
+                                <span class="metric-number">0.0%</span>
+                            </div>
+                            <div class="metric-label">📋 Duplications</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">
+                                <span class="lines-badge">146</span>
+                                <span style="font-size: 11px; color: #666;">XS</span>
+                            </div>
+                            <div class="metric-label">☕ Java, JSP</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-item">
+                    <div class="star-icon">☆</div>
+                    <div class="project-info">
+                        <a href="#" class="project-name">"TYCS"</a>
+                        <div class="project-meta">
+                            <span class="project-status passed">Passed</span>
+                        </div>
+                        <div class="project-meta">📅 Last analysis: May 21, 2020, 10:30 AM</div>
+                    </div>
+                    <div class="metrics">
+                        <div class="metric">
+                            <div class="metric-value">
+                                <span class="metric-number">1</span>
+                                <div class="rating-circle rating-c">C</div>
+                            </div>
+                            <div class="metric-label">🐛 Bugs</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">
+                                <span class="metric-number">0</span>
+                                <div class="rating-circle rating-a">A</div>
+                            </div>
+                            <div class="metric-label">🔒 Vulnerabilities</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">
+                                <span class="metric-number">0.0%</span>
+                                <div class="rating-circle rating-e">E</div>
+                            </div>
+                            <div class="metric-label">👁 Hotspots Reviewed</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">
+                                <span class="metric-number">186</span>
+                                <div class="rating-circle rating-a">A</div>
+                            </div>
+                            <div class="metric-label">💨 Code Smells</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">
+                                <div class="coverage-circle coverage-red">○</div>
+                                <span class="metric-number">0.0%</span>
+                            </div>
+                            <div class="metric-label">📊 Coverage</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">
+                                <div class="duplication-circle" style="border-color: #d4333f; color: #d4333f;">●</div>
+                                <span class="metric-number">25.2%</span>
+                            </div>
+                            <div class="metric-label">📋 Duplications</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">
+                                <span class="lines-badge">5.5k</span>
+                                <span style="font-size: 11px; color: #666;">S</span>
+                            </div>
+                            <div class="metric-label">🌐 JavaScript, CSS, ...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 8 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 6) + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // Add interactivity
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        document.querySelectorAll('.star-icon').forEach(star => {
+            star.addEventListener('click', function() {
+                this.textContent = this.textContent === '☆' ? '★' : '☆';
+                this.classList.toggle('favorited');
+            });
+        });
+
+        // Add hover effects for metrics
+        document.querySelectorAll('.metric').forEach(metric => {
+            metric.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px) scale(1.05)';
+            });
+            
+            metric.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(-5px) scale(1)';
+            });
+        });
+
+        // Add click effects for rating circles
+        document.querySelectorAll('.rating-circle').forEach(circle => {
+            circle.addEventListener('click', function() {
+                this.style.animation = 'starPulse 0.6s ease';
+                setTimeout(() => {
+                    this.style.animation = '';
+                }, 600);
+            });
+        });
+
+        // Animate progress bars on load
+        window.addEventListener('load', function() {
+            document.querySelectorAll('.count-fill').forEach(fill => {
+                const width = fill.style.width;
+                fill.style.width = '0%';
+                setTimeout(() => {
+                    fill.style.width = width;
+                }, 500);
+            });
+        });
+
+        // Initialize particles
+        createParticles();
+
+        // Add search functionality
+        const searchBox = document.querySelector('.project-search');
+        const projectItems = document.querySelectorAll('.project-item');
+
+        searchBox.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            projectItems.forEach(item => {
+                const projectName = item.querySelector('.project-name').textContent.toLowerCase();
+                if (projectName.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                    item.style.animation = 'slideIn 0.3s ease';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        // Add keyframe for slide in animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { opacity: 0; transform: translateX(-20px); }
+                to { opacity: 1; transform: translateX(0); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
