@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RoomGuru | Melbourne Suburb Guide</title>
+  <style>
+    /* Base Styles */
+    :root {
+      --primary: #4a6bff;
+      --primary-dark: #3a56cc;
+      --secondary: #ff6b4a;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+      --light-gray: #e9ecef;
+      --orange: #ff9f1a;
+      --orange-dark: #e88c00;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: var(--dark);
+      background-color: white;
+    }
+    
+    /* Header & Navigation */
+    header {
+      background-color: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .navbar {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0.6rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--primary);
+      white-space: nowrap;
+    }
+    
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 2rem;
+    }
+    
+    .nav-links a {
+      color: var(--dark);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+      font-size: 0.95rem;
+    }
+    
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+    
+    .user-auth {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      white-space: nowrap;
+    }
+    
+    .login-btn {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+      font-size: 0.95rem;
+    }
+    
+    .register-btn {
+      background-color: var(--primary);
+      color: white;
+      padding: 0.4rem 0.9rem;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background-color 0.3s;
+      font-size: 0.95rem;
+    }
+    
+    .register-btn:hover {
+      background-color: var(--primary-dark);
+    }
+    
+    .login-btn:hover {
+      color: var(--primary-dark);
+    }
+    
+    /* Mobile Navigation */
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--dark);
+      cursor: pointer;
+      padding: 0.3rem;
+    }
+    
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+                  url('https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+      background-size: cover;
+      background-position: center;
+      color: white;
+      text-align: center;
+      padding: 4rem 2rem;
+      border-radius: 0 0 30px 30px;
+      overflow: hidden;
+    }
+    
+    .hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.8rem;
+    }
+    
+    .hero p {
+      font-size: 1.2rem;
+      max-width: 700px;
+      margin: 0 auto 1.5rem;
+    }
+    
+    /* Search form */
+    .search-form {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .search-bar {
+      display: flex;
+    }
+    
+    .search-bar input {
+      flex: 1;
+      padding: 0.8rem 1.2rem;
+      border: none;
+      border-radius: 4px 0 0 4px;
+      font-size: 1.1rem;
+    }
+    
+    .search-bar button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 0 1.5rem;
+      border-radius: 0 4px 4px 0;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: background-color 0.3s;
+    }
+    
+    .search-bar button:hover {
+      background-color: var(--primary-dark);
+    }
+    
+    /* Search Options */
+    .search-options {
+      max-width: 800px;
+      margin: 1.2rem auto 0;
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+    }
+    
+    .search-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+    
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+    
+    .search-option-label {
+      color: white;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+    
+    .circle-checkbox {
+      position: relative;
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      border: 2px solid white;
+      background-color: transparent;
+      display: inline-block;
+      cursor: pointer;
+    }
+    
+    .circle-checkbox.checked::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 0.8rem;
+      height: 0.8rem;
+      border-radius: 50%;
+      background-color: white;
+    }
+    
+    /* Suburb Cards */
+    .suburbs-heading {
+      text-align: center;
+      margin: 3rem 0 1.5rem;
+      color: var(--primary);
+      font-size: 2rem;
+    }
+    
+    .filter-controls {
+      max-width: 1200px;
+      margin: 0 auto 2rem;
+      padding: 0 2rem;
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+    
+    .filter-btn {
+      background-color: var(--light);
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .filter-btn:hover {
+      background-color: var(--light-gray);
+    }
+    
+    .filter-btn.active {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .suburb-container {
+      max-width: 1200px;
+      margin: 1.5rem auto 3rem;
+      padding: 0 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+    
+    .suburb-card {
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+      position: relative;
+      cursor: pointer;
+    }
+    
+    .suburb-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .suburb-image {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+    }
+    
+    .suburb-content {
+      padding: 1.5rem;
+      text-align: center;
+    }
+    
+    .suburb-content h2 {
+      margin-bottom: 0.5rem;
+      color: var(--primary);
+    }
+    
+    .suburb-stats {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: var(--gray);
+    }
+    
+    .suburb-stats span {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    
+    /* Features Section */
+    .features {
+      background-color: var(--light);
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+    
+    .features-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .features h2 {
+      font-size: 2rem;
+      margin-bottom: 3rem;
+    }
+    
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+    }
+    
+    .feature-card {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    
+    /* Room Actions Section */
+    .room-actions {
+      background-color: white;
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+    
+    .room-actions-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+    }
+    
+    .room-action-card {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+      text-align: center;
+    }
+    
+    .room-action-card h2 {
+      color: var(--primary);
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+    
+    .room-action-card p {
+      margin-bottom: 1.5rem;
+      color: var(--gray);
+    }
+    
+    .room-action-card .link {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+    
+    .room-action-card .link:hover {
+      color: var(--primary-dark);
+    }
+    
+    .room-action-btn {
+      background-color: var(--orange);
+      color: white;
+      padding: 0.8rem 2rem;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background-color 0.3s;
+      display: inline-block;
+      margin-top: 0.5rem;
+    }
+    
+    .room-action-btn:hover {
+      background-color: var(--orange-dark);
+    }
+    
+    /* Footer */
+    footer {
+      background-color: var(--dark);
+      color: white;
+      text-align: center;
+      padding: 2rem;
+    }
+    
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+      text-align: left;
+      margin-bottom: 2rem;
+    }
+    
+    .footer-column h3 {
+      margin-bottom: 1rem;
+      color: white;
+    }
+    
+    .footer-column ul {
+      list-style: none;
+    }
+    
+    .footer-column ul li {
+      margin-bottom: 0.5rem;
+    }
+    
+    .footer-column ul li a {
+      color: var(--light-gray);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    
+    .footer-column ul li a:hover {
+      color: white;
+    }
+    
+    .copyright {
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    /* Back to top button */
+    .back-to-top {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: var(--primary);
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-decoration: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 99;
+    }
+    
+    .back-to-top.visible {
+      opacity: 1;
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+      .nav-links {
+        gap: 1rem;
+      }
+      
+      .room-actions-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .room-action-card {
+        width: 100%;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .mobile-menu-btn {
+        display: block;
+      }
+      
+      .navbar {
+        flex-wrap: wrap;
+        padding: 0.5rem 1.5rem;
+      }
+      
+      .logo {
+        flex: 1;
+      }
+      
+      .nav-links {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        align-items: center;
+        padding: 0.8rem 0;
+        order: 3;
+      }
+      
+      .nav-links.show {
+        display: flex;
+      }
+      
+      .hero {
+        padding: 3rem 1rem;
+        border-radius: 0 0 15px 15px;
+      }
+      
+      .hero h1 {
+        font-size: 2rem;
+      }
+      
+      .search-bar {
+        max-width: 90%;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      .search-bar input,
+      .search-bar button {
+        border-radius: 4px;
+        width: 100%;
+        padding: 0.8rem 1rem;
+      }
+      
+      .search-options {
+        flex-direction: row;
+        justify-content: center;
+        width: 90%;
+      }
+      
+      .filter-controls {
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="logo">RoomGuru</div>
+      <button class="mobile-menu-btn" aria-label="Toggle navigation menu">☰</button>
+      <ul class="nav-links">
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Rent</a></li>
+        <li><a href="service.html">Services</a></li>
+        <li><a href="#">Find a Room</a></li>
+        <li><a href="#">List a Room</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+      <div class="user-auth">
+        <a href="#" class="login-btn">Log In</a>
+        <a href="#" class="register-btn">Register</a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <h1>Modern Way to Find Rooms</h1>
+    <p>Discover different areas of Melbourne and what makes each one unique. Find your perfect neighborhood.</p>
+    <form class="search-form" role="search">
+      <div class="search-bar">
+        <label for="suburb-search" class="visually-hidden">Search suburbs</label>
+        <input type="text" id="suburb-search" placeholder="Search suburbs..." aria-label="Search suburbs">
+        <button type="submit">Search</button>
+      </div>
+      <div class="search-options" role="radiogroup" aria-label="Search type">
+        <div class="search-option" data-option="rooms" role="radio" aria-checked="true" tabindex="0">
+          <input type="radio" name="search-type" id="room-option" class="visually-hidden" checked>
+          <span class="circle-checkbox checked" aria-hidden="true"></span>
+          <label for="room-option" class="search-option-label">Room</label>
+        </div>
+        <div class="search-option" data-option="roommates" role="radio" aria-checked="false" tabindex="0">
+          <input type="radio" name="search-type" id="mate-option" class="visually-hidden">
+          <span class="circle-checkbox" aria-hidden="true"></span>
+          <label for="mate-option" class="search-option-label">Mate</label>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <main>
+    <!-- NEW SECTION: Room Actions -->
+    <section class="room-actions">
+      <div class="room-actions-container">
+        <div class="room-action-card">
+          <h2>Need a room?</h2>
+          <p>Most people with rooms for rent search the rooms wanted for suitable roommates.</p>
+          <a href="#" class="link">Make sure they find you!</a>
+          <div>
+            <a href="#" class="room-action-btn">Advertise for free</a>
+          </div>
+        </div>
+        
+        <div class="room-action-card">
+          <h2>Got a room to rent?</h2>
+          <p>Be amazed at the response rate - rent your room within days</p>
+          <a href="#" class="link">Find out more</a>
+          <div>
+            <a href="#" class="room-action-btn">Post a free ad</a>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <h2 class="suburbs-heading">Popular Suburbs</h2>
+    
+    <div class="filter-controls">
+      <button class="filter-btn active" data-price="all">All</button>
+      <button class="filter-btn" data-price="low">Budget-friendly</button>
+      <button class="filter-btn" data-price="medium">Mid-range</button>
+      <button class="filter-btn" data-price="high">Premium</button>
+    </div>
+    
+    <div class="suburb-container">
+      <section class="suburb-card" data-price="high">
+        <img class="suburb-image" src="https://images.unsplash.com/photo-1580591090179-1002143f4fdb?auto=format&fit=crop&w=500&q=60" alt="Cityscape view of Melbourne CBD with tall skyscrapers" width="500" height="333" loading="lazy">
+        <div class="suburb-content">
+          <h2>Melbourne CBD</h2>
+          <div class="suburb-stats">
+            <span>🏢 250+ listings</span>
+            <span>💰 $350-$600/wk</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="suburb-card" data-price="medium">
+        <img class="suburb-image" src="https://images.unsplash.com/photo-1604025164537-6e94b8e4c76f?auto=format&fit=crop&w=500&q=60" alt="Street view of Brunswick with cafes and vintage shops" width="500" height="333" loading="lazy">
+        <div class="suburb-content">
+          <h2>Brunswick</h2>
+          <div class="suburb-stats">
+            <span>🏢 180+ listings</span>
+            <span>💰 $250-$450/wk</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="suburb-card" data-price="high">
+        <img class="suburb-image" src="https://images.unsplash.com/photo-1533089860892-a7bfa295ab51?auto=format&fit=crop&w=500&q=60" alt="St Kilda beach with palm trees and boardwalk" width="500" height="333" loading="lazy">
+        <div class="suburb-content">
+          <h2>St Kilda</h2>
+          <div class="suburb-stats">
+            <span>🏢 120+ listings</span>
+            <span>💰 $300-$500/wk</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="suburb-card" data-price="low">
+        <img class="suburb-image" src="https://images.unsplash.com/photo-1590490360188-29c2b0e17a92?auto=format&fit=crop&w=500&q=60" alt="Cultural street scene in Footscray with diverse restaurants" width="500" height="333" loading="lazy">
+        <div class="suburb-content">
+          <h2>Footscray</h2>
+          <div class="suburb-stats">
+            <span>🏢 90+ listings</span>
+            <span>💰 $220-$400/wk</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="suburb-card" data-price="medium">
+        <img class="suburb-image" src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=500&q=60" alt="Trendy shopping district in Richmond" width="500" height="333" loading="lazy">
+        <div class="suburb-content">
+          <h2>Richmond</h2>
+          <div class="suburb-stats">
+            <span>🏢 150+ listings</span>
+            <span>💰 $280-$480/wk</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="suburb-card" data-price="high">
+        <img class="suburb-image" src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=500&q=60" alt="Upscale apartments in South Yarra" width="500" height="333" loading="lazy">
+        <div class="suburb-content">
+          <h2>South Yarra</h2>
+          <div class="suburb-stats">
+            <span>🏢 200+ listings</span>
+            <span>💰 $320-$550/wk</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="features">
+      <div class="features-container">
+        <h2>Why Use RoomGuru?</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon" aria-hidden="true">🛡️</div>
+            <h3>Safety First</h3>
+            <p>All properties and roommates undergo safety verification and background checks.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon" aria-hidden="true">🌏</div>
+            <h3>New to Melbourne?</h3>
+            <p>Discover the perfect neighborhood that matches your lifestyle preferences.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon" aria-hidden="true">👨‍👩‍👧‍👦</div>
+            <h3>Meet New People</h3>
+            <p>Connect with like-minded roommates who share your interests and values.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon" aria-hidden="true">🔧</div>
+            <h3>Premium Services</h3>
+            <p>From moving assistance to rental agreements - we've got you covered. <a href="service.html">Learn more</a>.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-column">
+        <h3>RoomGuru</h3>
+        <p>Helping you find the perfect place to live in Melbourne since 2023.</p>
+      </div>
+      <div class="footer-column">
+        <h3>Explore</h3>
+        <ul>
+          <li><a href="#">Suburbs</a></li>
+          <li><a href="#">Room Listings</a></li>
+          <li><a href="#">Roommate Finder</a></li>
+          <li><a href="service.html">Services</a></li>
+          <li><a href="#">Moving Guides</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h3>Company</h3>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h3>Legal</h3>
+        <ul>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="copyright">
+      <p>© 2025 RoomGuru. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <a href="#" class="back-to-top" aria-label="Back to top">↑</a>
+
+  <script>
+    // Mobile menu toggle
+    document.querySelector('.mobile-menu-btn').addEventListener('click', () => {
+      document.querySelector('.nav-links').classList.toggle('show');
+    });
+    
+    // Suburb card clicks
+    document.querySelectorAll('.suburb-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const suburb = card.querySelector('h2').textContent;
+        alert(`Loading more details about ${suburb}...`);
+        // In a real app, this would navigate to a suburb details page
+      });
+    });
+    
+    // Search form submission
+    document.querySelector('.search-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const query = document.querySelector('#suburb-search').value;
+      if (query) {
+        alert(`Searching for "${query}"...`);
+        // In a real app, this would filter the suburb cards
+      }
+    });
+    
+    // Login and register alerts
+    document.querySelector('.login-btn').addEventListener('click', (e) => {
+      e.preventDefault();
+      alert('Login functionality to be implemented');
+    });
+    
+    document.querySelector('.register-btn').addEventListener('click', (e) => {
+      e.preventDefault();
+      alert('Registration functionality to be implemented');
+    });
+    
+    // Circle checkbox toggle
+    document.querySelectorAll('.search-option').forEach(option => {
+      option.addEventListener('click', () => {
+        // Update hidden inputs
+        const radioInput = option.querySelector('input[type="radio"]');
+        radioInput.checked = true;
+        
+        // Update ARIA states
+        document.querySelectorAll('.search-option').forEach(opt => {
+          opt.setAttribute('aria-checked', 'false');
+          opt.querySelector('.circle-checkbox').classList.remove('checked');
+        });
+        
+        option.setAttribute('aria-checked', 'true');
+        option.querySelector('.circle-checkbox').classList.add('checked');
+        
+        const optionType = option.getAttribute('data-option');
+        alert(`Switching search to ${optionType} mode`);
+      });
+      
+      // Allow keyboard navigation
+      option.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          option.click();
+        }
+      });
+    });
+    
+    // Room action buttons
+    document.querySelectorAll('.room-action-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const actionType = btn.textContent;
+        alert(`${actionType} functionality to be implemented`);
+      });
+    });
+    
+    // Price filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Remove active class from all buttons
+        document.querySelectorAll('.filter-btn').forEach(b => {
+          b.classList.remove('active');
+        });
+        
+        // Add active class to clicked button
+        btn.classList.add('active');
+        
+        const priceFilter = btn.getAttribute('data-price');
+        
+        // Filter suburb cards
+        document.querySelectorAll('.suburb-card').forEach(card => {
+          if (priceFilter === 'all' || card.getAttribute('data-price') === priceFilter) {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+    
+    // Back to top button
