@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RoomGuru | Room Listings</title>
+  <style>
+    /* Base Styles */
+    :root {
+      --primary: #4a6bff;
+      --primary-dark: #3a56cc;
+      --secondary: #ff6b4a;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+      --light-gray: #e9ecef;
+      --orange: #ff9f1a;
+      --orange-dark: #e88c00;
+      --green: #28a745;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: var(--dark);
+      background-color: var(--light);
+    }
+    
+    /* Header & Navigation */
+    header {
+      background-color: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .navbar {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0.6rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--primary);
+      white-space: nowrap;
+      text-decoration: none;
+    }
+    
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 2rem;
+    }
+    
+    .nav-links a {
+      color: var(--dark);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+      font-size: 0.95rem;
+    }
+    
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+    
+    .nav-links a.active {
+      color: var(--primary);
+      position: relative;
+    }
+    
+    .nav-links a.active::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: var(--primary);
+    }
+    
+    .user-auth {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      white-space: nowrap;
+    }
+    
+    .login-btn {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+      font-size: 0.95rem;
+    }
+    
+    .register-btn {
+      background-color: var(--primary);
+      color: white;
+      padding: 0.4rem 0.9rem;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background-color 0.3s;
+      font-size: 0.95rem;
+    }
+    
+    .register-btn:hover {
+      background-color: var(--primary-dark);
+    }
+    
+    .login-btn:hover {
+      color: var(--primary-dark);
+    }
+    
+    /* Mobile Navigation */
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--dark);
+      cursor: pointer;
+      padding: 0.3rem;
+    }
+    
+    /* Page Header */
+    .page-header {
+      background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+                  url('https://images.unsplash.com/photo-1486304873000-235643847519?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+      background-size: cover;
+      background-position: center;
+      color: white;
+      text-align: center;
+      padding: 2.5rem 2rem;
+      border-radius: 0 0 30px 30px;
+    }
+    
+    .page-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .page-header p {
+      font-size: 1.1rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    
+    /* Main Content */
+    .main-content {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+      display: flex;
+      gap: 2rem;
+    }
+    
+    /* Filters Section */
+    .filters {
+      width: 280px;
+      flex-shrink: 0;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 1.5rem;
+      align-self: flex-start;
+      position: sticky;
+      top: 90px;
+    }
+    
+    .filters h2 {
+      font-size: 1.3rem;
+      margin-bottom: 1.5rem;
+      color: var(--primary);
+    }
+    
+    .filter-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .filter-group h3 {
+      font-size: 1rem;
+      margin-bottom: 0.8rem;
+      color: var(--dark);
+    }
+    
+    .price-range {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    
+    .price-input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid var(--light-gray);
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+    
+    .checkbox-list {
+      list-style: none;
+    }
+    
+    .checkbox-item {
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .checkbox-item input {
+      transform: scale(1.2);
+    }
+    
+    .checkbox-item label {
+      font-size: 0.9rem;
+    }
+    
+    .filter-button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      width: 100%;
+      padding: 0.7rem 0;
+      border-radius: 4px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-top: 1rem;
+    }
+    
+    .filter-button:hover {
+      background-color: var(--primary-dark);
+    }
+    
+    .clear-filters {
+      background-color: transparent;
+      color: var(--gray);
+      border: none;
+      width: 100%;
+      padding: 0.5rem 0;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+    
+    .clear-filters:hover {
+      color: var(--dark);
+    }
+    
+    /* Listings Section */
+    .listings {
+      flex: 1;
+    }
+    
+    .listings-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .listings-header h2 {
+      font-size: 1.5rem;
+      color: var(--dark);
+    }
+    
+    .listings-count {
+      font-size: 0.9rem;
+      color: var(--gray);
+    }
+    
+    .sort-by {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .sort-by label {
+      font-size: 0.9rem;
+      color: var(--gray);
+    }
+    
+    .sort-by select {
+      padding: 0.4rem 0.8rem;
+      border: 1px solid var(--light-gray);
+      border-radius: 4px;
+      font-size: 0.9rem;
+      background-color: white;
+    }
+    
+    .room-card {
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 1.5rem;
+      display: flex;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .room-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .room-image {
+      width: 35%;
+      min-height: 220px;
+      object-fit: cover;
+    }
+    
+    .room-details {
+      flex: 1;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .room-price {
+      color: var(--green);
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    
+    .room-title {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+      color: var(--primary);
+    }
+    
+    .room-location {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      margin-bottom: 0.8rem;
+      color: var(--gray);
+      font-size: 0.9rem;
+    }
+    
+    .room-features {
+      margin-top: 0.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 0.8rem;
+    }
+    
+    .room-feature {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.9rem;
+      color: var(--dark);
+      background-color: var(--light);
+      padding: 0.3rem 0.6rem;
+      border-radius: 20px;
+    }
+    
+    .room-description {
+      margin-top: auto;
+      color: var(--gray);
+      font-size: 0.9rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .room-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--light-gray);
+    }
+    
+    .room-date {
+      font-size: 0.85rem;
+      color: var(--gray);
+    }
+    
+    .view-details {
+      background-color: var(--orange);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: background-color 0.3s;
+    }
+    
+    .view-details:hover {
+      background-color: var(--orange-dark);
+    }
+    
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 2.5rem;
+    }
+    
+    .pagination-link {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    
+    .pagination-link.active {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .pagination-link:not(.active) {
+      background-color: white;
+      color: var(--dark);
+    }
+    
+    .pagination-link:hover:not(.active) {
+      background-color: var(--light-gray);
+    }
+    
+    .pagination-ellipsis {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      font-weight: 500;
+      color: var(--gray);
+    }
+    
+    /* Quick Action Section */
+    .quick-action {
+      background-color: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-top: 2rem;
+    }
+    
+    .quick-action h3 {
+      color: var(--primary);
+      margin-bottom: 1rem;
+      font-size: 1.3rem;
+    }
+    
+    .quick-action p {
+      margin-bottom: 1.5rem;
+      color: var(--gray);
+    }
+    
+    .post-room-btn {
+      background-color: var(--orange);
+      color: white;
+      padding: 0.8rem 2rem;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 500;
+      display: inline-block;
+      transition: background-color 0.3s;
+    }
+    
+    .post-room-btn:hover {
+      background-color: var(--orange-dark);
+    }
+    
+    /* Footer */
+    footer {
+      background-color: var(--dark);
+      color: white;
+      text-align: center;
+      padding: 2rem;
+      margin-top: 3rem;
+    }
+    
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+      text-align: left;
+      margin-bottom: 2rem;
+    }
+    
+    .footer-column h3 {
+      margin-bottom: 1rem;
+      color: white;
+    }
+    
+    .footer-column ul {
+      list-style: none;
+    }
+    
+    .footer-column ul li {
+      margin-bottom: 0.5rem;
+    }
+    
+    .footer-column ul li a {
+      color: var(--light-gray);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    
+    .footer-column ul li a:hover {
+      color: white;
+    }
+    
+    .copyright {
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    /* Back to top button */
+    .back-to-top {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: var(--primary);
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-decoration: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 99;
+    }
+    
+    .back-to-top.visible {
+      opacity: 1;
+    }
+    
+    /* Responsive Styles */
+    @media (max-width: 992px) {
+      .nav-links {
+        gap: 1rem;
+      }
+    }
+    
+    @media (max-width: 900px) {
+      .main-content {
+        flex-direction: column;
+      }
+      
+      .filters {
+        width: 100%;
+        position: static;
+      }
+      
+      .filter-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+      }
+      
+      .filter-buttons {
+        grid-column: 1 / -1;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .mobile-menu-btn {
+        display: block;
+      }
+      
+      .navbar {
+        flex-wrap: wrap;
+        padding: 0.5rem 1.5rem;
+      }
+      
+      .logo {
+        flex: 1;
+      }
+      
+      .nav-links {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        align-items: center;
+        padding: 0.8rem 0;
+        order: 3;
+      }
+      
+      .nav-links.show {
+        display: flex;
+      }
+      
+      .page-header {
+        padding: 2rem 1rem;
+        border-radius: 0 0 15px 15px;
+      }
+      
+      .listings-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      
+      .room-card {
+        flex-direction: column;
+      }
+      
+      .room-image {
+        width: 100%;
+        height: 200px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .filter-form {
+        grid-template-columns: 1fr;
+      }
+      
+      .room-features {
+        gap: 0.5rem;
+      }
+      
+      .room-feature {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <a href="index.html" class="logo">RoomGuru</a>
+      <button class="mobile-menu-btn" aria-label="Toggle navigation menu">☰</button>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="#" class="active">Rent</a></li>
+        <li><a href="service.html">Services</a></li>
+        <li><a href="#">Find a Room</a></li>
+        <li><a href="#">List a Room</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+      <div class="user-auth">
+        <a href="#" class="login-btn">Log In</a>
+        <a href="#" class="register-btn">Register</a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="page-header">
+    <h1>Available Rooms</h1>
+    <p>Browse our selection of rooms for rent across Melbourne. Find your perfect match.</p>
+  </div>
+
+  <main class="main-content">
+    <aside class="filters">
+      <h2>Filter Results</h2>
+      <form class="filter-form">
+        <div class="filter-group">
+          <h3>Price Range (weekly)</h3>
+          <div class="price-range">
+            <input type="number" class="price-input" placeholder="Min $" min="0">
+            <span>to</span>
+            <input type="number" class="price-input" placeholder="Max $" min="0">
+          </div>
+        </div>
+        
+        <div class="filter-group">
+          <h3>Suburb</h3>
+          <ul class="checkbox-list">
+            <li class="checkbox-item">
+              <input type="checkbox" id="cbd" name="suburb" value="CBD">
+              <label for="cbd">CBD</label>
+            </li>
+            <li class="checkbox-item">
+              <input type="checkbox" id="brunswick" name="suburb" value="Brunswick">
+              <label for="brunswick">Brunswick</label>
+            </li>
+            <li class="checkbox-item">
+              <input type="checkbox" id="st-kilda" name="suburb" value="St Kilda">
+              <label for="st-kilda">St Kilda</label>
+            </li>
+            <li class="checkbox-item">
+              <input type="checkbox" id="footscray" name="suburb" value="Footscray">
+              <label for="footscray">Footscray</label>
+            </li>
+            <li class="checkbox-item">
+              <input type="checkbox" id="richmond" name="suburb" value="Richmond">
+              <label for="richmond">Richmond</label>
+            </li>
+            <li class="checkbox-item">
+              <input type="checkbox" id="south-yarra" name="suburb" value="South Yarra">
+              <label for="south-yarra">South Yarra</label>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="filter-group">
+          <h3>Room Type</h3>
+          <ul class="checkbox-list">
+            <li class="checkbox-item">
+              <input type="checkbox" id="private" name="room-type" value="Private">
+              <label for="private">Private Room</label>
+            </li>
+            <li class="checkbox-item">
+              <input type="checkbox" id="shared" name="room-type" value="Shared">
+              <label for="shared">Shared Room</label>
+            </li>
+            <li class="checkbox-item">
+              <input type="checkbox" id="ensuite" name="room-type" value="Ensuite">
+              <label for="ensuite">Ensuite</label>
+            </li>
+            <li class="checkbox-item">
+              <input type="checkbox" id="studio" name="room-type" value="Studio">
+              <label for="studio">Studio Apartment</label>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="filter-group">
+          <h3>Amenities</h3>
+          <ul class="checkbox-list">
+            <li class="checkbox-item">
+              <input type="checkbox" id="furnished" name="amenities" value="Furnished">
+              <label for="furnished">Furnished</label>
+            </li>
+            <li class="checkbox-item">
+              <input type="checkbox" id="bills" name="amenities" value="Bills Included">
+              <label for="bills">Bills Included</label>
+            </li>
+            <li class="checkbox-item">
+              <input type="checkbox" id="internet" name="amenities" value="Internet">
+              <label for="internet">Internet</label>
+            </li>
+            <li class="checkbox-item">
+              <input type="checkbox" id="parking" name="amenities" value="Parking">
+              <label for="parking">Parking</label>
+            </li>
+            <li class="checkbox-item">
+              <input type="checkbox" id="aircon" name="amenities" value="Air Conditioning">
+              <label for="aircon">Air Conditioning</label>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="filter-buttons">
+          <button type="submit" class="filter-button">Apply Filters</button>
+          <button type="reset" class="clear-filters">Clear All</button>
+        </div>
+      </form>
+    </aside>
+    
+    <section class="listings">
+      <div class="listings-header">
+        <div>
+          <h2>Find Your Next Room</h2>
+          <span class="listings-count">76 results found</span>
+        </div>
+        <div class="sort-by">
+          <label for="sort-select">Sort by:</label>
+          <select id="sort-select">
+            <option value="newest">Newest First</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+            <option value="popular">Most Popular</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="room-listings">
+        <!-- Room 1 -->
+        <article class="room-card">
+          <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" class="room-image" alt="Spacious private room in Melbourne CBD apartment" loading="lazy">
+          <div class="room-details">
+            <div class="room-price">$380 per week</div>
+            <h3 class="room-title">Spacious Private Room in Modern Apartment</h3>
+            <div class="room-location">
+              <span>📍</span> Melbourne CBD, 3000
+            </div>
+            <div class="room-features">
+              <span class="room-feature">✓ Private Room</span>
+              <span class="room-feature">✓ Furnished</span>
+              <span class="room-feature">✓ Bills Included</span>
+              <span class="room-feature">✓ Internet</span>
+            </div>
+            <p class="room-description">
+              Bright and spacious private room available in a modern apartment building in the heart of Melbourne CBD. The apartment features a modern kitchen, spacious living area, and balcony with city views. Perfect for professionals or students.
+            </p>
+            <div class="room-footer">
+              <span class="room-date">Listed 2 days ago</span>
+              <a href="#" class="view-details">View Details</a>
+            </div>
+          </div>
+        </article>
+        
+        <!-- Room 2 -->
+        <article class="room-card">
+          <img src="https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" class="room-image" alt="Cozy ensuite room in Brunswick share house" loading="lazy">
+          <div class="room-details">
+            <div class="room-price">$320 per week</div>
+            <h3 class="room-title">Cozy Ensuite Room in Brunswick Share House</h3>
+            <div class="room-location">
+              <span>📍</span> Brunswick, 3056
+            </div>
+            <div class="room-features">
+              <span class="room-feature">✓ Ensuite</span>
+              <span class="room-feature">✓ Furnished</span>
+              <span class="room-feature">✓ Internet</span>
+              <span class="room-feature">✓ Parking</span>
+            </div>
+            <p class="room-description">
+              Beautiful ensuite room available in a friendly share house in Brunswick. The room comes fully furnished with a queen bed, desk, and built-in wardrobe. The house has a large kitchen, cozy living room, and a sunny backyard.
+            </p>
+            <div class="room-footer">
+              <span class="room-date">Listed 3 days ago</span>
+              <a href="#" class="view-details">View Details</a>
+            </div>
+          </div>
+        </article>
+        
+        <!-- Room 3 -->
+        <article class="room-card">
+          <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" class="room-image" alt="Studio apartment in South Yarra" loading="lazy">
+          <div class="room-details">
+            <div class="room-price">$450 per week</div>
+            <h3 class="room-title">Modern Studio Apartment in South Yarra</h3>
+            <div class="room-location">
+              <span>📍</span> South Yarra, 3141
+            </div>
+            <div class="room-features">
+              <span class="room-feature">✓ Studio</span>
+              <span class="room-feature">✓ Furnished</span>
+              <span class="room-feature">✓ Air Conditioning</span>
+              <span class="room-feature">✓ Gym Access</span>
+            </div>
+            <p class="room-description">
+              Stylish studio apartment available in a premium South Yarra location. The apartment features a modern kitchen with stainless steel appliances, built-in wardrobe, and a private balcony. Building amenities include a gym and rooftop terrace.
+            </p>
+            <div class="room-footer">
+              <span class="room-date">Listed today</span>
+              <a href="#" class="view-details">View Details</a>
+            </div>
+          </div>
+        </article>
+        
+        <!-- Room 4 -->
+        <article class="room-card">
+          <img src="https://images.unsplash.com/photo-1554995207-c18c203602cb?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" class="room-image" alt="Budget-friendly room in Footscray" loading="lazy">
+          <div class="room-details">
+            <div class="room-price">$220 per week</div>
+            <h3 class="room-title">Budget-Friendly Room in Vibrant Footscray</h3>
+            <div class="room-location">
+              <span>📍</span> Footscray, 3011
+            </div>
+            <div class="room-features">
+              <span class="room-feature">✓ Private Room</span>
+              <span class="room-feature">✓ Bills Included</span>
+              <span class="room-feature">✓ Internet</span>
+              <span class="room-feature">✓ Close to Transport</span>
+            </div>
+            <p class="room-description">
+              Affordable private room in a friendly share house in multicultural Footscray. The room is furnished with a single bed, desk, and wardrobe. Great location just 5 minutes walk to Footscray station and market.
+            </p>
+            <div class="room-footer">
+              <span class="room-date">Listed 1 week ago</span>
+              <a href="#" class="view-details">View Details</a>
+            </div>
+          </div>
+        </article>
